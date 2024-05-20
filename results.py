@@ -8,11 +8,11 @@ import numpy as np
 from math import radians, sin, cos, sqrt, atan2
 
 path = "p" # 테스트 경로 (c/k/m/p)
-IO = "out" # 학습 데이터셋에 테스트 데이터셋이 포함/미포함되었는지 (in/out)
+YN = "out" # 학습 데이터셋에 테스트 데이터셋이 포함/미포함되었는지 (in/out)
 g = "G" # 장거리 경로 포함/미포함 (G/NG)
 
 df1 = pd.read_csv("01.Research/02.Preprocessing02/Ydata_ytest_yhat/ytest_1m/ytest_out_G/y_test150_" + path + "_GPS.csv")
-df2 = pd.read_csv("01.Research/02.Preprocessing02/Ydata_ytest_yhat/yhat_restoration_1m/yhat_"+ IO + "_" + g + "/yhat150_" + path + "_re_256_ep200.csv")
+df2 = pd.read_csv("01.Research/02.Preprocessing02/Ydata_ytest_yhat/yhat_restoration_1m/yhat_"+ YN + "_" + g + "/yhat150_" + path + "_re_256_ep200.csv")
 
 y_test = df1.values.tolist()
 yhat = df2.values.tolist()
