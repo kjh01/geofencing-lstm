@@ -11,7 +11,7 @@
 '''
 parameters = {
     path = "p",     # c / k / m / p
-    IO = "out",     # in / out
+    YN = "out",     # in / out : 테스트 데이터셋이 훈련 데이터셋에 포함되었는지에 대한 유무 확인
     g = "G",        # G / NG
     features = 3,
     window_size = 4
