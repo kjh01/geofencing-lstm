@@ -1,3 +1,8 @@
+'''
+- 오차 거리 계산 코드
+- y_test와 yhat: plot 및 map 저장 코드
+'''
+
 import pandas as pd
 import numpy as np
 from math import radians, sin, cos, sqrt, atan2
@@ -68,3 +73,68 @@ print('ytest와 yhat의 MSE : {} km²'.format(mse))
 
 # 오차 거리 txt 저장
 ######### code 추가 필요 #########
+
+
+'''
+아래는 y_test 좌표 & yhat 좌표 plot(.png) 출력 및 map(.html) 저장하는 코드
+'''
+
+import folium
+from geopy.distance import geodesic, great_circle
+from matplotlib import pyplot as plt
+
+df = pd.read_csv("01.Research/03.AnomalyDetection/GPSdata/school/ysh/ipin_2405_ysh_all.csv")
+
+# 필요한 컬럼만 선택
+df = df[['요청시간', '참위치 경도', '참위치 위도']]
+
+# '요청시간' 컬럼을 datetime 타입으로 변환
+df['요청시간'] = pd.to_datetime(df['요청시간'])
+group = df.sort_values(by='요청시간').reset_index(drop=True)
+
+week = 4
+week_kr = "금"
+date = "03"
+
+# 특정 날짜 필터링
+s_df = group[group['요청시간'].dt.date == pd.to_datetime('2024-05-03').date()]
+
+def convert_time(time_str, w):
+    h, m, s = time_str.split(':')
+    converted = int(f"{w}{int(h):02d}{int(m):02d}{int(s):02d}")
+    return converted
+
+s_df['Time'] = s_df['요청시간'].apply(lambda x: x.time().strftime('%H:%M:%S'))
+s_df['WeekTime'] = s_df['Time'].apply(lambda x: convert_time(x, week)) # 0 = 월요일, ...
+
+# 0 값을 제거
+Real = s_df[(s_df[['참위치 위도', '참위치 경도']] != 0).all(axis=1)]
+
+# 기준 위도와 경도 설정
+base_lat = Real['참위치 위도'].iloc[0]
+base_lon = Real['참위치 경도'].iloc[0]
+
+# 거리 계산
+Real['Distance_Lat'] = Real.apply(lambda row: great_circle((base_lat, base_lon), (row['참위치 위도'], base_lon)).kilometers, axis=1)
+Real['Distance_Lon'] = Real.apply(lambda row: great_circle((base_lat, base_lon), (base_lat, row['참위치 경도'])).kilometers, axis=1)
+
+# Scatter plot
+plt.scatter(Real['Distance_Lon'], Real['Distance_Lat'], s=20, color='green', label='Real')
+plt.xlabel('Distance_Lon (km)')
+plt.ylabel('Distance_Lat (km)')
+plt.legend()
+plt.grid(True)
+plt.title("ipin_2405" + date)
+plt.savefig("01.Research/03.AnomalyDetection/GPSdata/plot_png/ysh/map_ipin_05" + date + "_" + week_kr +".png")
+plt.show()
+
+# 지도 생성
+if not Real.empty:
+    map_center = [Real['참위치 위도'].iloc[0], Real['참위치 경도'].iloc[0]]
+    m = folium.Map(location=map_center, zoom_start=15)
+
+    for idx, row in Real.iterrows():
+        if pd.notnull(row['참위치 위도']) and pd.notnull(row['참위치 경도']):
+            folium.Marker([row['참위치 위도'], row['참위치 경도']]).add_to(m)
+
+    m.save("01.Research/03.AnomalyDetection/GPSdata/html/ysh/map_ipin_05" + date + "_" + week_kr +".html")
