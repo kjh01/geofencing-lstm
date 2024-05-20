@@ -67,3 +67,4 @@ mse = np.mean(np.square(distance_list))
 print('ytest와 yhat의 MSE : {} km²'.format(mse))
 
 # 오차 거리 txt 저장
+######### code 추가 필요 #########
