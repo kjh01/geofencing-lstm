@@ -37,13 +37,21 @@ def process_and_save_files(input_dir, window_size):
 
     return result_x, result_y
 
+def list_to_dataframe(matrix):
+    df = pd.DataFrame(matrix, columns=['Lat', 'Lon'])
+    return df
+
 # 입력 디렉토리 설정
 input_dir_train = "C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.Preprocessing02/Create_random_path/Paths_by_individuals/train_1m/train_in/train_in_p150_NG"  # train 입력 디렉토리 경로
 input_dir_test = "C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.Preprocessing02/Create_random_path/Paths_by_individuals/test_1m/test_ckmp/test_1m_c"  # test 입력 디렉토리 경로
 
-# 입력 디렉토리 내의 파일을 슬라이딩하고 결과를 저장 > 3D
+# 입력 디렉토리 내의 raw 파일을 슬라이딩하고 결과를 반환 > 3D
 x_train, y_train = process_and_save_files(input_dir_train, window_size)
 x_test, y_test = process_and_save_files(input_dir_test, window_size)
+
+# 슬라이딩한 테스트 데이터(gps) .csv로 저장
+my_df = list_to_dataframe(y_test[:,:2])
+my_df.to_csv("C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.Preprocessing02/Ydata_ytest_yhat/ytest_1m/ytest_out_NG/y_test150_c_GPS.csv", index=False)
 
 # 훈련/테스트 데이터 변환 > 3D
 y_train = np.reshape(y_train, (y_train.shape[0], 1, y_train.shape[1]))
@@ -55,7 +63,7 @@ y_train_2d = np.concatenate(y_train)
 x_test_2d = np.concatenate(x_test)
 y_test_2d = np.concatenate(y_test)
 
-# 모든 데이터 합치기 > *한꺼번에 모든 입력 데이터를 정규화하기 위해서
+# 모든 데이터 합치기 > *한꺼번에 모든 raw 데이터를 정규화하기 위해서
 all_data = np.concatenate([x_train_2d, y_train_2d, x_test_2d, y_test_2d], axis=0) # 2D
 
 from sklearn.preprocessing import MinMaxScaler
@@ -84,12 +92,12 @@ x_test_3d_nor = x_3d_reshape(x_test_3d, x_test_2d_normalized, window_size)    # 
 y_train_nor = np.array(y_train_2d_normalized) # 2D 리스트를 넘파이 배열로 변환
 y_test_nor = np.array(y_test_2d_normalized) # 2D 리스트를 넘파이 배열로 변환
 
-# 3차원 및 2차원 배열(.npy) 저장하기
+# 정규화한 3차원 및 2차원 배열(.npy) 저장하기
 np.save('geofencing-lstm/Train_Dataset_pro/x_train_3d_nor.npy', x_train_3d_nor)
 np.save('geofencing-lstm/Test_Dataset_pro/x_test_3d_nor.npy', x_test_3d_nor)
 np.save('geofencing-lstm/Train_Dataset_pro/y_train_nor.npy', y_train_nor)
 np.save('geofencing-lstm/Test_Dataset_pro/y_test_nor.npy', y_test_nor)
 
-# .npy 파일에서 불러오기
+# .npy 파일에서 정규화 데이터 불러오기
 loaded_array = np.load('x_train_3d_nor.npy')
 print(loaded_array)
