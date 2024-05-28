@@ -12,7 +12,12 @@ window_size = 4  # 윈도우 크기 설정
 features = 3
 
 # 3차원 테스트 데이터(x,y) 불러오기
-x_test = pd.read_csv()
+np.save('geofencing-lstm/Test_Dataset_pro/x_test_3d_nor.npy', x_test_3d_nor)
+np.save('geofencing-lstm/Train_Dataset_pro/y_train_nor.npy', y_train_nor)
+np.save('geofencing-lstm/Test_Dataset_pro/y_test_nor.npy', y_test_nor)
+
+# .npy 파일에서 정규화 데이터 불러오기
+x_test = np.load('geofencing-lstm/Test_Dataset_pro/x_test_3d_nor.npy')
 y_test = pd.read_csv("C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.Preprocessing02/Ydata_ytest_yhat/ytest_1m/ytest_out_NG/y_test150_c_GPS.csv)
 
 # Load Train Model
