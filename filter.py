@@ -79,10 +79,17 @@ def x_3d_reshape(intial_list, x_2d_nor, window_size):
         intial_list.append(window)
     return np.array(intial_list) # 리스트를 넘파이 배열로 변환
 
-x_train_3d = x_3d_reshape(x_train_3d, x_train_2d_normalized, window_size)
-x_test_3d = x_3d_reshape(x_test_3d, x_test_2d_normalized, window_size)
-y_train = np.array(y_train_2d_normalized) # 리스트를 넘파이 배열로 변환
-y_test = np.array(y_test_2d_normalized) # 리스트를 넘파이 배열로 변환
+x_train_3d_nor = x_3d_reshape(x_train_3d, x_train_2d_normalized, window_size) # 3D
+x_test_3d_nor = x_3d_reshape(x_test_3d, x_test_2d_normalized, window_size)    # 3D
+y_train_nor = np.array(y_train_2d_normalized) # 2D 리스트를 넘파이 배열로 변환
+y_test_nor = np.array(y_test_2d_normalized) # 2D 리스트를 넘파이 배열로 변환
 
-# 3차원 배열 저장하기
-######### code 추가 필요 #########
+# 3차원 및 2차원 배열(.npy) 저장하기
+np.save('x_train_3d_nor.npy', x_train_3d_nor)
+np.save('x_test_3d_nor.npy', x_test_3d_nor)
+np.save('y_train_nor.npy', y_train_nor)
+np.save('y_test_nor.npy', y_test_nor)
+
+# .npy 파일에서 불러오기
+loaded_array = np.load('x_train_3d_nor.npy')
+print(loaded_array)
