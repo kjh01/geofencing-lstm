@@ -85,10 +85,10 @@ y_train_nor = np.array(y_train_2d_normalized) # 2D 리스트를 넘파이 배열
 y_test_nor = np.array(y_test_2d_normalized) # 2D 리스트를 넘파이 배열로 변환
 
 # 3차원 및 2차원 배열(.npy) 저장하기
-np.save('x_train_3d_nor.npy', x_train_3d_nor)
-np.save('x_test_3d_nor.npy', x_test_3d_nor)
-np.save('y_train_nor.npy', y_train_nor)
-np.save('y_test_nor.npy', y_test_nor)
+np.save('geofencing-lstm/Train_Dataset_pro/x_train_3d_nor.npy', x_train_3d_nor)
+np.save('geofencing-lstm/Test_Dataset_pro/x_test_3d_nor.npy', x_test_3d_nor)
+np.save('geofencing-lstm/Train_Dataset_pro/y_train_nor.npy', y_train_nor)
+np.save('geofencing-lstm/Test_Dataset_pro/y_test_nor.npy', y_test_nor)
 
 # .npy 파일에서 불러오기
 loaded_array = np.load('x_train_3d_nor.npy')
