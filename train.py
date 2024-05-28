@@ -51,15 +51,18 @@ def LSTM():
 model = LSTM()
 model.summary()
 
-# Train
+# Start Recording Training Time
 start = dt.datetime.now()
+
+# Train
 model.compile(optimizer='adam', loss='mse')
 model.fit(x_train, np.array(y_train), epochs=200, batch_size=4)
-model.save('01.Research/02.Preprocessing02/Saved_models/model_in/model_in_NG/model150_256_200.h5')
 
 # Stop Recording Training Time
 end = dt.datetime.now()
 
+# Save Train Model
+model.save('01.Research/02.Preprocessing02/Saved_models/model_in/model_in_NG/model150_256_200.h5')
+
 # Save Training Time
 times = end - start
-print(times)
