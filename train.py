@@ -15,18 +15,6 @@ features = 3
 x_train = np.load('geofencing-lstm/Train_Dataset_pro/x_train_3d_nor.npy')
 y_train = np.load('geofencing-lstm/Train_Dataset_pro/y_train_nor.npy')
 
-# Start Recording Training Time
-class TimeHistory(keras.callbacks.Callback):
-    def on_train_begin(self, logs={}):
-        self.times = []
-
-    def on_epoch_begin(self, batch, logs={}):
-        self.epoch_time_start = time.time()
-
-    def on_epoch_end(self, batch, logs={}):
-        self.times.append(time.time() - self.epoch_time_start)
-time_callback = TimeHistory()
-
 # Structure of Model 
 def LSTM():
     model = keras.models.Sequential([
