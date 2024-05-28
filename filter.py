@@ -1,3 +1,4 @@
+from sklearn.preprocessing import MinMaxScaler
 import datetime as dt
 import pandas as pd
 import numpy as np
@@ -49,9 +50,9 @@ input_dir_test = "C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.P
 x_train, y_train = process_and_save_files(input_dir_train, window_size)
 x_test, y_test = process_and_save_files(input_dir_test, window_size)
 
-# 슬라이딩한 테스트 데이터(gps) .csv로 저장
-my_df = list_to_dataframe(y_test[:,:2])
-my_df.to_csv("C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.Preprocessing02/Ydata_ytest_yhat/ytest_1m/ytest_out_NG/y_test150_c_GPS.csv", index=False)
+# 슬라이딩한 y_test 데이터(gps) .csv로 저장 > results.py에서 'GPS로 역전환한 yhat'과 y_test(gps)의 오차 거리와 map을 추출하기 위함
+y_test_gps = list_to_dataframe(y_test[:,:2])
+y_test_gps.to_csv("C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.Preprocessing02/Ydata_ytest_yhat/ytest_1m/ytest_out_NG/y_test150_c_GPS.csv", index=False)
 
 # 훈련/테스트 데이터 변환 > 3D
 y_train = np.reshape(y_train, (y_train.shape[0], 1, y_train.shape[1]))
@@ -66,8 +67,8 @@ y_test_2d = np.concatenate(y_test)
 # 모든 데이터 합치기 > *한꺼번에 모든 raw 데이터를 정규화하기 위해서
 all_data = np.concatenate([x_train_2d, y_train_2d, x_test_2d, y_test_2d], axis=0) # 2D
 
-from sklearn.preprocessing import MinMaxScaler
-scaler = MinMaxScaler() # 최대최소 정규화
+# GPS 정규화
+scaler = MinMaxScaler() 
 all_data_normalized = scaler.fit_transform(all_data.reshape(-1, 3)) # 2D
 
 # 정규화한 전체 데이터에서 각 훈련/테스트 데이터 사이즈만큼 자르기
@@ -80,7 +81,7 @@ y_test_2d_normalized = all_data_normalized[len(x_train_2d)+len(y_train_2d)+len(x
 x_train_3d = []
 x_test_3d = []
 
-# 각 행에서 4개씩 추출하여 3차원 배열로 변환
+# 각 행에서 4개씩(window size) 추출하여 3차원 배열로 변환
 def x_3d_reshape(intial_list, x_2d_nor, window_size):
     for i in range(0, len(x_2d_nor) - window_size + 1, window_size):
         window = x_2d_nor[i:i + window_size]  # 윈도우 크기만큼 행 추출
