@@ -12,8 +12,8 @@ window_size = 4  # 윈도우 크기 설정
 features = 3
 
 # 3차원 훈련 데이터(x,y) 불러오기
-x_train = np.load('x_train_3d_nor.npy')
-y_train = np.load('y_train_nor.npy')
+x_train = np.load('geofencing-lstm/Train_Dataset_pro/x_train_3d_nor.npy')
+y_train = np.load('geofencing-lstm/Train_Dataset_pro/y_train_nor.npy')
 
 # Start Recording Training Time
 class TimeHistory(keras.callbacks.Callback):
