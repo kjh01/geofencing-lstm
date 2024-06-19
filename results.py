@@ -37,9 +37,11 @@ g = "G" # 장거리 경로 포함/미포함 (G/NG)
 df1 = pd.read_csv("y_test_" + path + "_GPS.csv")
 df2 = pd.read_csv("yhat_" + path + "_.csv")
 
-# 정규화 yhat 역전환
+# 정규화 yhat 역전환용 Scaler 불러오기(filter.py)
 scaler1 = joblib.load("scaler_lat.pkl")
 scaler2 = joblib.load("scaler_lon.pkl")
+
+# 정규화 yhat 역전환
 df20 = df2['Lat']
 df21 = df2['Lon']
 rescaled_pred_Lat = scaler1.inverse_transform(np.array(df20).reshape(-1,1))
@@ -58,6 +60,9 @@ yhat = pd.read_csv("yhat_GPS.csv")
 y_test = df1.values.tolist()
 yhat = df2.values.tolist()
 
+'''
+아래는 오차거리 계산 및 저장하는 코드
+'''
 def calculate_distance(coords1, coords2):
     # 지구의 반경 (단위: km)
     radius = 6371.0
@@ -184,7 +189,7 @@ plt.title("ipin_24" _" + path )
 plt.savefig("png_ipin_" + path + ".png")
 plt.show()
 
-# 지도 생성
+# 지도 생성 및 저장
 if not y_test.empty and not yhat.empty:
     map_center = [y_test['Lat'].iloc[0], y_test['Lon'].iloc[0]]
     m = folium.Map(location=map_center, zoom_start=15)
