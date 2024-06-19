@@ -33,9 +33,28 @@ path = "p" # 테스트 경로 (c/k/m/p)
 YN = "out" # 학습 데이터셋에 테스트 데이터셋이 포함/미포함되었는지 (in/out)
 g = "G" # 장거리 경로 포함/미포함 (G/NG)
 
-df1 = pd.read_csv("01.Research/02.Preprocessing02/Ydata_ytest_yhat/ytest_1m/ytest_out_G/y_test150_" + path + "_GPS.csv")
-df2 = pd.read_csv("01.Research/02.Preprocessing02/Ydata_ytest_yhat/yhat_restoration_1m/yhat_"+ YN + "_" + g + "/yhat150_" + path + "_re_256_ep200.csv")
+# GPS y_test와 정규화 yhat 불러오기
+df1 = pd.read_csv("y_test_GPS.csv")
+df2 = pd.read_csv("yhat_.csv")
 
+# 정규화 yhat 역전환
+scaler1 = joblib.load("scaler_lat.pkl")
+scaler2 = joblib.load("scaler_lon.pkl")
+df20 = df2['Lat']
+df21 = df2['Lon']
+rescaled_pred_Lat = scaler1.inverse_transform(np.array(df20).reshape(-1,1))
+rescaled_pred_Lon = scaler2.inverse_transform(np.array(df21).reshape(-1,1))
+
+# 역전환한 GPS Yhat 저장하기
+yhat = np.concatenate((rescaled_pred_Lat, rescaled_pred_Lon), axis=1).tolist()
+column_names = ['Lat', 'Lon']  # 열 이름을 지정
+combined_array = pd.DataFrame(yhat, columns=column_names)
+save_path1 = "yhat_GPS.csv"
+combined_array.to_csv(save_path1, index=False)
+
+# GPS y_teat와 GPS yhat 다시 불러오기
+y_test = pd.read_csv("y_test_GPS.csv")
+yhat = pd.read_csv("yhat_GPS.csv")
 y_test = df1.values.tolist()
 yhat = df2.values.tolist()
 
@@ -78,20 +97,23 @@ def calculate_distance_list(test, pred):
 
 # 오차 거리 계산
 distance_list = calculate_distance_list(y_test, yhat)
+print("오차 거리 계산(km): \n{}\n".format(distance_list))
 
 # 평균 오차거리 km
-print('평균 오차거리(km): {} km'.format(sum(distance_list)/len(distance_list)))
+avg_err_distance = sum(distance_list)/len(distance_list)
+print('평균 오차거리(km): {} km\n'.format(avg_err_distance))
 
 # 최대 오차거리 km
-print('최대 오차거리(km): {} km'.format(max(distance_list)))
+max_err_distance = max(distance_list)
+print('최대 오차거리(km): {} km\n'.format(max_err_distance))
 
 # 분산 거리 km²
 variance = np.var(distance_list)
-print('분산: {} km²'.format(variance))
+print('분산: {} km²\n'.format(variance))
 
 # MSE km²
 mse = np.mean(np.square(distance_list))
-print('ytest와 yhat의 MSE : {} km²'.format(mse))
+print('ytest와 yhat의 MSE : {} km²\n'.format(mse))
 
 # 오차 거리 txt 저장
 ######### code 추가 필요 #########
@@ -100,13 +122,14 @@ print('ytest와 yhat의 MSE : {} km²'.format(mse))
 '''
 아래는 y_test 좌표 & yhat 좌표 plot(.png) 출력 및 map(.html) 저장하는 코드
 '''
-
 import folium
 from geopy.distance import geodesic, great_circle
 from matplotlib import pyplot as plt
 
-df = pd.read_csv("01.Research/03.AnomalyDetection/GPSdata/school/ysh/ipin_2405_ysh_all.csv")
+y_test = pd.read_csv("y_test_GPS.csv")
+yhat = pd.read_csv("yhat_GPS.csv")
 
+'''
 # 필요한 컬럼만 선택
 df = df[['요청시간', '참위치 경도', '참위치 위도']]
 
@@ -131,14 +154,20 @@ s_df['WeekTime'] = s_df['Time'].apply(lambda x: convert_time(x, week)) # 0 = 월
 
 # 0 값을 제거
 Real = s_df[(s_df[['참위치 위도', '참위치 경도']] != 0).all(axis=1)]
+'''
 
 # 기준 위도와 경도 설정
-base_lat = Real['참위치 위도'].iloc[0]
-base_lon = Real['참위치 경도'].iloc[0]
+base_lat_hat = yhat['Lat'][0]
+base_lon_hat = yhat['Lon'][0]
+base_lat = y_test['Lat'][0]
+base_lon = y_test['Lon'][0]
 
 # 거리 계산
-Real['Distance_Lat'] = Real.apply(lambda row: great_circle((base_lat, base_lon), (row['참위치 위도'], base_lon)).kilometers, axis=1)
-Real['Distance_Lon'] = Real.apply(lambda row: great_circle((base_lat, base_lon), (base_lat, row['참위치 경도'])).kilometers, axis=1)
+yhat['Distance_Lat'] = yhat.apply(lambda row: great_circle((base_lat_hat, base_lon_hat), (row['Lat'], base_lon_hat)).kilometers, axis=1)
+yhat['Distance_Lon'] = yhat.apply(lambda row: great_circle((base_lat_hat, base_lon_hat), (base_lat_hat, row['Lon'])).kilometers, axis=1)
+
+y_test['Distance_Lat'] = y_test.apply(lambda row: great_circle((base_lat, base_lon), (row['Lat'], base_lon)).kilometers, axis=1)
+y_test['Distance_Lon'] = y_test.apply(lambda row: great_circle((base_lat, base_lon), (base_lat, row['Lon'])).kilometers, axis=1)
 
 # Scatter plot
 plt.scatter(Real['Distance_Lon'], Real['Distance_Lat'], s=20, color='green', label='Real')
@@ -146,17 +175,24 @@ plt.xlabel('Distance_Lon (km)')
 plt.ylabel('Distance_Lat (km)')
 plt.legend()
 plt.grid(True)
-plt.title("ipin_2405" + date)
-plt.savefig("01.Research/03.AnomalyDetection/GPSdata/plot_png/ysh/map_ipin_05" + date + "_" + week_kr +".png")
+plt.title("ipin_24" + date)
+plt.savefig("png_ipin.png")
 plt.show()
 
 # 지도 생성
-if not Real.empty:
-    map_center = [Real['참위치 위도'].iloc[0], Real['참위치 경도'].iloc[0]]
+if not y_test.empty and not yhat.empty:
+    map_center = [y_test['Lat'].iloc[0], y_test['Lon'].iloc[0]]
     m = folium.Map(location=map_center, zoom_start=15)
 
-    for idx, row in Real.iterrows():
-        if pd.notnull(row['참위치 위도']) and pd.notnull(row['참위치 경도']):
-            folium.Marker([row['참위치 위도'], row['참위치 경도']]).add_to(m)
+    # y_test 데이터 빨간 마커로 추가
+    for idx, row in y_test.iterrows():
+        if pd.notnull(row['Lat']) and pd.notnull(row['Lon']):
+            folium.Marker([row['Lat'], row['Lon']],  icon=folium.Icon(color='red')).add_to(m)
 
-    m.save("01.Research/03.AnomalyDetection/GPSdata/html/ysh/map_ipin_05" + date + "_" + week_kr +".html")
+    # yhat 데이터 파란 마커로 추가
+    for idx, row in yhat.iterrows():
+        if pd.notnull(row['Lat']) and pd.notnull(row['Lon']):
+            folium.Marker([row['Lat'], row['Lon']], icon=folium.Icon(color='blue')).add_to(m)
+
+    m.save(
+        "map_ipin.html")
