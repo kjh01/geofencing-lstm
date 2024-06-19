@@ -34,8 +34,8 @@ YN = "out" # 학습 데이터셋에 테스트 데이터셋이 포함/미포함�
 g = "G" # 장거리 경로 포함/미포함 (G/NG)
 
 # GPS y_test와 정규화 yhat 불러오기
-df1 = pd.read_csv("y_test_GPS.csv")
-df2 = pd.read_csv("yhat_.csv")
+df1 = pd.read_csv("y_test_" + path + "_GPS.csv")
+df2 = pd.read_csv("yhat_" + path + "_.csv")
 
 # 정규화 yhat 역전환
 scaler1 = joblib.load("scaler_lat.pkl")
@@ -49,7 +49,7 @@ rescaled_pred_Lon = scaler2.inverse_transform(np.array(df21).reshape(-1,1))
 yhat = np.concatenate((rescaled_pred_Lat, rescaled_pred_Lon), axis=1).tolist()
 column_names = ['Lat', 'Lon']  # 열 이름을 지정
 combined_array = pd.DataFrame(yhat, columns=column_names)
-save_path1 = "yhat_GPS.csv"
+save_path1 = "yhat_" + path + "_GPS.csv"
 combined_array.to_csv(save_path1, index=False)
 
 # GPS y_teat와 GPS yhat 다시 불러오기
@@ -116,7 +116,12 @@ mse = np.mean(np.square(distance_list))
 print('ytest와 yhat의 MSE : {} km²\n'.format(mse))
 
 # 오차 거리 txt 저장
-######### code 추가 필요 #########
+with open(f"results_{path}.txt", 'w') as file:
+    file.write("오차 거리 계산(km): \n{}\n\n".format(distance_list))
+    file.write('평균 오차거리(km): {} km\n\n'.format(avg_err_distance))
+    file.write('최대 오차거리(km): {} km\n\n'.format(max_err_distance))
+    file.write('분산: {} km²\n\n'.format(variance))
+    file.write('ytest와 yhat의 MSE : {} km²\n\n'.format(mse))
 
 
 '''
@@ -126,8 +131,8 @@ import folium
 from geopy.distance import geodesic, great_circle
 from matplotlib import pyplot as plt
 
-y_test = pd.read_csv("y_test_GPS.csv")
-yhat = pd.read_csv("yhat_GPS.csv")
+y_test = pd.read_csv("y_test_" + path + "_GPS.csv")
+yhat = pd.read_csv("yhat_" + path + "_GPS.csv")
 
 '''
 # 필요한 컬럼만 선택
@@ -175,8 +180,8 @@ plt.xlabel('Distance_Lon (km)')
 plt.ylabel('Distance_Lat (km)')
 plt.legend()
 plt.grid(True)
-plt.title("ipin_24" + date)
-plt.savefig("png_ipin.png")
+plt.title("ipin_24" _" + path )
+plt.savefig("png_ipin_" + path + ".png")
 plt.show()
 
 # 지도 생성
@@ -195,4 +200,4 @@ if not y_test.empty and not yhat.empty:
             folium.Marker([row['Lat'], row['Lon']], icon=folium.Icon(color='blue')).add_to(m)
 
     m.save(
-        "map_ipin.html")
+        "map_ipin_" + path + ".html")
