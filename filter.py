@@ -52,7 +52,7 @@ x_test, y_test = process_and_save_files(input_dir_test, window_size)
 
 # 슬라이딩한 y_test 데이터(gps) .csv로 저장 > results.py에서 'GPS로 역전환한 yhat'과 y_test(gps)의 오차 거리와 map을 추출하기 위함
 y_test_gps = list_to_dataframe(y_test[:,:2])
-y_test_gps.to_csv("C:/Users/user/PycharmProjects/Geofencing_main/01.Research/02.Preprocessing02/Ydata_ytest_yhat/ytest_1m/ytest_out_NG/y_test150_c_GPS.csv", index=False)
+y_test_gps.to_csv("y_test_" + path + "_GPS.csv", index=False)
 
 # 훈련/테스트 데이터 변환 > 3D
 y_train = np.reshape(y_train, (y_train.shape[0], 1, y_train.shape[1]))
@@ -80,10 +80,9 @@ all_data_normalized_lat = scaler1.fit_transform(all_data_lat.reshape(-1, 1))
 all_data_normalized_lon = scaler2.fit_transform(all_data_lon.reshape(-1, 1))
 
 # 역전환용 스케일러 저장
-joblib.dump(scaler, "C:/Users/user/PycharmProjects/Geofencing_main/02_Research/Scaler/scaler_"+ person + ".pkl")
-joblib.dump(scaler1, "C:/Users/user/PycharmProjects/Geofencing_main/02_Research/Scaler/scaler_lat_"+ person + ".pkl")
-joblib.dump(scaler2, "C:/Users/user/PycharmProjects/Geofencing_main/02_Research/Scaler/scaler_lon_"+ person + ".pkl")
-
+joblib.dump(scaler, "scaler_"+ person + ".pkl")
+joblib.dump(scaler1, "scaler_lat_"+ person + ".pkl")
+joblib.dump(scaler2, "scaler_lon_"+ person + ".pkl")
 
 # 정규화한 전체 데이터에서 각 훈련/테스트 데이터 사이즈만큼 자르기
 x_train_2d_normalized = all_data_normalized[:len(x_train_2d)] # 2D
