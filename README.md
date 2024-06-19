@@ -9,6 +9,7 @@ for geofencing lstm code
    - 3차원 reshape + window size(4) + strides(1) with 정규화
    - 학습 데이터 셋: 3차원 reshape + window size(4) + strides(1) > 학습 데이터 셋 전처리
    - 테스트 데이터 셋: 3차원 reshape + window size(4) + strides(1) > 학습 데이터 셋 전처리
+   - 데이터 셋 정규화 > 정규화 스케일러 생성 및 저장
 
 2. train.py:
    - 전처리한 학습 데이터 셋 입력> 학습 모델 생성 및 저장.
