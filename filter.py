@@ -71,6 +71,20 @@ all_data = np.concatenate([x_train_2d, y_train_2d, x_test_2d, y_test_2d], axis=0
 scaler = MinMaxScaler() 
 all_data_normalized = scaler.fit_transform(all_data.reshape(-1, 3)) # 2D
 
+# 역전환용 Scaler
+scaler1 = MinMaxScaler() # Lat 정규화
+scaler2 = MinMaxScaler() # Lon 정규화
+all_data_lat = all_data[:,0]
+all_data_lon = all_data[:,1]
+all_data_normalized_lat = scaler1.fit_transform(all_data_lat.reshape(-1, 1))
+all_data_normalized_lon = scaler2.fit_transform(all_data_lon.reshape(-1, 1))
+
+# 역전환용 스케일러 저장
+joblib.dump(scaler, "C:/Users/user/PycharmProjects/Geofencing_main/02_Research/Scaler/scaler_"+ person + ".pkl")
+joblib.dump(scaler1, "C:/Users/user/PycharmProjects/Geofencing_main/02_Research/Scaler/scaler_lat_"+ person + ".pkl")
+joblib.dump(scaler2, "C:/Users/user/PycharmProjects/Geofencing_main/02_Research/Scaler/scaler_lon_"+ person + ".pkl")
+
+
 # 정규화한 전체 데이터에서 각 훈련/테스트 데이터 사이즈만큼 자르기
 x_train_2d_normalized = all_data_normalized[:len(x_train_2d)] # 2D
 y_train_2d_normalized = all_data_normalized[len(x_train_2d):len(x_train_2d)+len(y_train_2d)] # 2D
