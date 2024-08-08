@@ -2,8 +2,8 @@
 for geofencing lstm code
 
 ### Code ###
-- main.py: 학습 데이터 셋 크기 및 여러 파라미터 설정. filter.py를 통해 train 데이터셋과 test 데이터셋을 뽑고 
-    lstm_model.py에서 모델 불러와서 학습 및 예측
+- main.py: 학습 데이터 셋 크기 및 여러 파라미터 설정. filter.py를 통해 train 데이터셋과 test 데이터셋을 추출한 후, 
+    lstm_model.py에서 모델 불러와서 학습 및 예측.
 
 1. filter.py:
    - 3차원 reshape + window size(4) + strides(1) with 정규화
